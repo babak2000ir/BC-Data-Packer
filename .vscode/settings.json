@@ -1,0 +1,6 @@
+{
+    "CRS.FileNamePattern": "<ObjectNameShort>.<ObjectType>[<ObjectId>].al", 
+    "CRS.FileNamePatternExtensions": "<ObjectNameShort>.<ObjectTypeShortPascalCase>[<ObjectId>].al", 
+    "CRS.FileNamePatternPageCustomizations": "<ObjectNameShort>(<BaseNameShort>).<ObjectTypeShort>.al",
+    "CRS.OnSaveAlFileAction": "Reorganize",
+}
