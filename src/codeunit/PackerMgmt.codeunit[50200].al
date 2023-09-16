@@ -112,7 +112,6 @@ codeunit 50200 "Packer Mgmt."
         if lRecRef.FINDSET() then
             repeat
                 lJAResponse.Add(GetEntityJson(lRecRef));
-                Clear(lJAResponse);
             until lRecRef.NEXT() = 0;
         lRecRef.CLOSE();
         exit(lJAResponse);
