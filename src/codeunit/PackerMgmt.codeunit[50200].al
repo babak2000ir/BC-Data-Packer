@@ -23,7 +23,7 @@ codeunit 50200 "Packer Mgmt."
         lJAFields: JsonArray;
     begin
         GetFieldsData(pTableId, lJAKeyFields, lJAFields);
-        lJOResponseHeader.Add('keyFields', lJAKeyFields);
+        //lJOResponseHeader.Add('keyFields', lJAKeyFields);
         lJOResponseHeader.Add('fields', lJAFields);
 
         exit(lJOResponseHeader);
@@ -35,6 +35,8 @@ codeunit 50200 "Packer Mgmt."
         lJOResponse: JsonObject;
         lJAResponse: JsonArray;
         TableRec: Record AllObjWithCaption;
+        lJAKeyFields: JsonArray;
+        lJAFields: JsonArray;
     begin
         SearchableTables.SetAutoCalcFields("Table Name");
         SearchableTables.RESET();
@@ -42,7 +44,10 @@ codeunit 50200 "Packer Mgmt."
             repeat
                 if TableRec.Get(TableRec."Object Type"::Table, SearchableTables."Table ID") then begin
                     lJOResponse.Add('tableCaption', TableRec."Object Caption");
-                    //lJOResponse.Add('fieldInfo', _GetTableInfo(SearchableTables."Table ID"));
+                    lJOResponse.Add('tableAIGuide', SearchableTables."AI Guide");
+                    lJOResponse.Add('fieldInfo', _GetTableInfo(SearchableTables."Table ID"));
+                    GetFieldsData(TableRec."Object ID", lJAKeyFields, lJAFields);
+                    lJOResponse.Add('fields', lJAFields);
                     lJOResponse.Add('records', _GetTableRecords(SearchableTables."Table ID"));
                     lJAResponse.Add(lJOResponse);
                     Clear(lJOResponse);
@@ -52,10 +57,10 @@ codeunit 50200 "Packer Mgmt."
     end;
 
 
-    local procedure GetEntityJson(var pRecRef: RecordRef): JsonObject
+    local procedure GetEntityJson(var pRecRef: RecordRef): JsonArray
     var
         lFields: Record "Field";
-        lJOResponse: JsonObject;
+        lJAResponse: JsonArray;
         lFieldRef: FieldRef;
         SearchableTableField: Record "Searchable Table Field";
     begin
@@ -66,45 +71,45 @@ codeunit 50200 "Packer Mgmt."
                 if SearchableTableField.Get(pRecRef.Number, lFields."No.") then
                     if lFields.Enabled and (lFields.ObsoleteState = lFields.ObsoleteState::No) then begin
                         lFieldRef := pRecRef.Field(lFields."No.");
-                        lJOResponse.Add(lFieldRef.Caption, format(lFieldRef.Value(), 0, 9));
+                        lJAResponse.Add(format(lFieldRef.Value(), 0, 9));
                     end;
             until lFields.NEXT() = 0;
-        exit(lJOResponse);
+        exit(lJAResponse);
     end;
 
     local procedure GetFieldsData(pTableId: Integer; pJAKeyFields: JsonArray; pJAFields: JsonArray)
     var
         lFields: Record "Field";
         lJOPart: JsonObject;
+        SearchableTableField: Record "Searchable Table Field";
     begin
         lFields.RESET();
         lFields.SETRANGE(TableNo, pTableId);
         if lFields.FINDSET() then
             repeat
-                if lFields.Enabled and (lFields.ObsoleteState = lFields.ObsoleteState::No) then begin
-                    Clear(lJOPart);
-                    lJOPart.Add('fieldName', lFields.FieldName);
-                    lJOPart.Add('fieldType', lFields."Type Name");
-                    if lFields.IsPartOfPrimaryKey then
-                        pJAKeyFields.Add(lJOPart)
-                    else
-                        pJAFields.Add(lJOPart);
-                end;
+                if SearchableTableField.Get(pTableId, lFields."No.") then
+                    if lFields.Enabled and (lFields.ObsoleteState = lFields.ObsoleteState::No) then begin
+                        Clear(lJOPart);
+                        lJOPart.Add('fieldCaption', lFields."Field Caption");
+                        lJOPart.Add('fieldAIGuide', SearchableTableField."AI Guide");
+                        if lFields.IsPartOfPrimaryKey then
+                            pJAKeyFields.Add(lJOPart)
+                        else
+                            pJAFields.Add(lJOPart);
+                    end;
             until lFields.NEXT() = 0;
     end;
 
     local procedure _GetTableRecords(pTableId: Integer): JsonArray
     var
         lRecRef: RecordRef;
-        lJOResponse: JsonObject;
         lJAResponse: JsonArray;
     begin
         lRecRef.OPEN(pTableId);
         if lRecRef.FINDSET() then
             repeat
-                lJOResponse := GetEntityJson(lRecRef);
-                lJAResponse.Add(lJOResponse);
-                Clear(lJOResponse);
+                lJAResponse.Add(GetEntityJson(lRecRef));
+                Clear(lJAResponse);
             until lRecRef.NEXT() = 0;
         lRecRef.CLOSE();
         exit(lJAResponse);

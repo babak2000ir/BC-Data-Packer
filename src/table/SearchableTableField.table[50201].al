@@ -43,6 +43,10 @@ table 50201 "Searchable Table Field"
             DataClassification = ToBeClassified;
             Editable = false;
         }
+        field(12; "AI Guide"; Text[500])
+        {
+            DataClassification = ToBeClassified;
+        }
         field(21; Active; Boolean)
         {
             DataClassification = ToBeClassified;

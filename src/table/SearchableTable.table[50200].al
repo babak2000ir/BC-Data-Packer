@@ -15,6 +15,10 @@ table 50200 "Searchable Table"
             CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table), "Object ID" = field("Table ID")));
             Editable = false;
         }
+        field(11; "AI Guide"; Text[500])
+        {
+            DataClassification = ToBeClassified;
+        }
         field(20; Active; Boolean)
         {
             DataClassification = ToBeClassified;

@@ -26,6 +26,10 @@ page 50201 "Search. Tab. Fields List Part"
                 {
                     ApplicationArea = All;
                 }
+                field("AI Guide"; rec."AI Guide")
+                {
+                    ApplicationArea = All;
+                }
                 field(Active; rec.Active)
                 {
                     ApplicationArea = All;

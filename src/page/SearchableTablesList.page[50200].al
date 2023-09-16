@@ -20,6 +20,10 @@ page 50200 "Searchable Tables List"
                 {
                     ApplicationArea = All;
                 }
+                field("AI Guide"; rec."AI Guide")
+                {
+                    ApplicationArea = All;
+                }
                 field(Active; rec.Active)
                 {
                     ApplicationArea = All;
