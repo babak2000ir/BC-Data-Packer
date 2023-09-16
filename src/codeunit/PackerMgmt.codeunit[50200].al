@@ -40,11 +40,13 @@ codeunit 50200 "Packer Mgmt."
     begin
         SearchableTables.SetAutoCalcFields("Table Name");
         SearchableTables.RESET();
+        SearchableTables.SETRANGE(active, true);
         if SearchableTables.FINDSET() then
             repeat
                 if TableRec.Get(TableRec."Object Type"::Table, SearchableTables."Table ID") then begin
                     lJOResponse.Add('tableCaption', TableRec."Object Caption");
-                    lJOResponse.Add('tableAIGuide', SearchableTables."AI Guide");
+                    if SearchableTables."AI Guide" <> '' then
+                        lJOResponse.Add('tableAIGuide', SearchableTables."AI Guide");
                     lJOResponse.Add('fieldInfo', _GetTableInfo(SearchableTables."Table ID"));
                     GetFieldsData(TableRec."Object ID", lJAKeyFields, lJAFields);
                     lJOResponse.Add('fields', lJAFields);
@@ -68,7 +70,7 @@ codeunit 50200 "Packer Mgmt."
         lFields.SETRANGE(TableNo, pRecRef.Number);
         if lFields.FINDSET() then
             repeat
-                if SearchableTableField.Get(pRecRef.Number, lFields."No.") then
+                if SearchableTableField.Get(pRecRef.Number, lFields."No.") and SearchableTableField.Active then
                     if lFields.Enabled and (lFields.ObsoleteState = lFields.ObsoleteState::No) then begin
                         lFieldRef := pRecRef.Field(lFields."No.");
                         lJAResponse.Add(format(lFieldRef.Value(), 0, 9));
@@ -87,11 +89,12 @@ codeunit 50200 "Packer Mgmt."
         lFields.SETRANGE(TableNo, pTableId);
         if lFields.FINDSET() then
             repeat
-                if SearchableTableField.Get(pTableId, lFields."No.") then
+                if SearchableTableField.Get(pTableId, lFields."No.") and SearchableTableField.Active then
                     if lFields.Enabled and (lFields.ObsoleteState = lFields.ObsoleteState::No) then begin
                         Clear(lJOPart);
                         lJOPart.Add('fieldCaption', lFields."Field Caption");
-                        lJOPart.Add('fieldAIGuide', SearchableTableField."AI Guide");
+                        if SearchableTableField."AI Guide" <> '' then
+                            lJOPart.Add('fieldAIGuide', SearchableTableField."AI Guide");
                         if lFields.IsPartOfPrimaryKey then
                             pJAKeyFields.Add(lJOPart)
                         else
