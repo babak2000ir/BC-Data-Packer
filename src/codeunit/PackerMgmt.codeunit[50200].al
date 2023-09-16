@@ -34,15 +34,19 @@ codeunit 50200 "Packer Mgmt."
         SearchableTables: Record "Searchable Table";
         lJOResponse: JsonObject;
         lJAResponse: JsonArray;
+        TableRec: Record AllObjWithCaption;
     begin
         SearchableTables.SetAutoCalcFields("Table Name");
         SearchableTables.RESET();
         if SearchableTables.FINDSET() then
             repeat
-                lJOResponse.Add('tableName', SearchableTables."Table Name");
-                lJOResponse.Add('fieldInfo', _GetTableInfo(SearchableTables."Table ID"));
-                lJAResponse.Add(lJOResponse);
-                Clear(lJOResponse);
+                if TableRec.Get(TableRec."Object Type"::Table, SearchableTables."Table ID") then begin
+                    lJOResponse.Add('tableCaption', TableRec."Object Caption");
+                    //lJOResponse.Add('fieldInfo', _GetTableInfo(SearchableTables."Table ID"));
+                    lJOResponse.Add('records', _GetTableRecords(SearchableTables."Table ID"));
+                    lJAResponse.Add(lJOResponse);
+                    Clear(lJOResponse);
+                end;
             until SearchableTables.NEXT() = 0;
         exit(lJAResponse);
     end;
@@ -53,15 +57,17 @@ codeunit 50200 "Packer Mgmt."
         lFields: Record "Field";
         lJOResponse: JsonObject;
         lFieldRef: FieldRef;
+        SearchableTableField: Record "Searchable Table Field";
     begin
         lFields.RESET();
         lFields.SETRANGE(TableNo, pRecRef.Number);
         if lFields.FINDSET() then
             repeat
-                if lFields.Enabled and (lFields.ObsoleteState = lFields.ObsoleteState::No) then begin
-                    lFieldRef := pRecRef.Field(lFields."No.");
-                    lJOResponse.Add(lFieldRef.Name, format(lFieldRef.Value(), 0, 9));
-                end;
+                if SearchableTableField.Get(pRecRef.Number, lFields."No.") then
+                    if lFields.Enabled and (lFields.ObsoleteState = lFields.ObsoleteState::No) then begin
+                        lFieldRef := pRecRef.Field(lFields."No.");
+                        lJOResponse.Add(lFieldRef.Caption, format(lFieldRef.Value(), 0, 9));
+                    end;
             until lFields.NEXT() = 0;
         exit(lJOResponse);
     end;
@@ -86,5 +92,23 @@ codeunit 50200 "Packer Mgmt."
                 end;
             until lFields.NEXT() = 0;
     end;
+
+    local procedure _GetTableRecords(pTableId: Integer): JsonArray
+    var
+        lRecRef: RecordRef;
+        lJOResponse: JsonObject;
+        lJAResponse: JsonArray;
+    begin
+        lRecRef.OPEN(pTableId);
+        if lRecRef.FINDSET() then
+            repeat
+                lJOResponse := GetEntityJson(lRecRef);
+                lJAResponse.Add(lJOResponse);
+                Clear(lJOResponse);
+            until lRecRef.NEXT() = 0;
+        lRecRef.CLOSE();
+        exit(lJAResponse);
+    end;
+
 }
 

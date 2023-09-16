@@ -53,6 +53,20 @@
             "longRunningSqlStatementsThreshold": 500,
             "numberOfSqlStatements": 10,
             "schemaUpdateMode": "ForceSync"
+        },
+        {
+            "name": "Transperen - Sandbox - attach",
+            "type": "al",
+            "request": "attach",
+            "authentication": "AAD",
+            "environmentType": "Sandbox",
+            "environmentName": "Open-ai-sandbox",
+            "breakOnError": true,
+            "breakOnRecordWrite": false,
+            "enableSqlInformationDebugger": true,
+            "enableLongRunningSqlStatements": true,
+            "longRunningSqlStatementsThreshold": 500,
+            "numberOfSqlStatements": 10,
         }
     ]
 }
