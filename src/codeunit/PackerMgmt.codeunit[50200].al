@@ -61,11 +61,12 @@ codeunit 50200 "Packer Mgmt."
                     if SearchableTables."AI Guide" <> '' then
                         lJOResponse.Add('tableAIGuide', SearchableTables."AI Guide");
                     //lJOResponse.Add('fieldInfo', _GetTableInfo(SearchableTables."Table ID"));
-                    GetFieldsData(TableRec."Object ID", lJAFields);
+                    GetFieldsData(SearchableTables."Table ID", lJAFields);
                     lJOResponse.Add('fields', lJAFields);
                     lJOResponse.Add('records', _GetTableRecords(SearchableTables."Table ID"));
                     lJAResponse.Add(lJOResponse);
                     Clear(lJOResponse);
+                    Clear(lJAFields);
                 end;
             until SearchableTables.NEXT() = 0;
         exit(lJAResponse);
@@ -95,7 +96,7 @@ codeunit 50200 "Packer Mgmt."
         exit(lJAResponse);
     end;
 
-    local procedure GetFieldsData(pTableId: Integer; pJAFields: JsonArray)
+    local procedure GetFieldsData(pTableId: Integer; var pJAFields: JsonArray)
     var
         lFields: Record "Field";
         lJOPart: JsonObject;
