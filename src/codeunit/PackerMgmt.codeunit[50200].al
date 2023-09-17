@@ -87,6 +87,10 @@ codeunit 50200 "Packer Mgmt."
                 if SearchableTableField.Get(pRecRef.Number, lFields."No.") and SearchableTableField.Active then
                     if lFields.Enabled and (lFields.ObsoleteState = lFields.ObsoleteState::No) then begin
                         lFieldRef := pRecRef.Field(lFields."No.");
+
+                        if lFieldRef.Class = lFieldRef.Class::FlowField then
+                            lFieldRef.CalcField();
+
                         if lFieldRef.Type = lFieldRef.Type::Option then
                             lJAResponse.Add(lFieldRef.GetEnumValueCaption(lFieldRef.Value()))
                         else
