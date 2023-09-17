@@ -19,10 +19,9 @@ codeunit 50200 "Packer Mgmt."
     local procedure _GetTableInfo(pTableId: Integer): JsonObject;
     var
         lJOResponseHeader: JsonObject;
-        lJAKeyFields: JsonArray;
         lJAFields: JsonArray;
     begin
-        GetFieldsData(pTableId, lJAKeyFields, lJAFields);
+        GetFieldsData(pTableId, lJAFields);
         //lJOResponseHeader.Add('keyFields', lJAKeyFields);
         lJOResponseHeader.Add('fields', lJAFields);
 
@@ -35,7 +34,6 @@ codeunit 50200 "Packer Mgmt."
         lJOResponse: JsonObject;
         lJAResponse: JsonArray;
         TableRec: Record AllObjWithCaption;
-        lJAKeyFields: JsonArray;
         lJAFields: JsonArray;
         SearchableAIGuide: Record "Searchable AI Guide";
         lJAAIGuide: JsonArray;
@@ -62,8 +60,8 @@ codeunit 50200 "Packer Mgmt."
                     lJOResponse.Add('tableCaption', TableRec."Object Caption");
                     if SearchableTables."AI Guide" <> '' then
                         lJOResponse.Add('tableAIGuide', SearchableTables."AI Guide");
-                    lJOResponse.Add('fieldInfo', _GetTableInfo(SearchableTables."Table ID"));
-                    GetFieldsData(TableRec."Object ID", lJAKeyFields, lJAFields);
+                    //lJOResponse.Add('fieldInfo', _GetTableInfo(SearchableTables."Table ID"));
+                    GetFieldsData(TableRec."Object ID", lJAFields);
                     lJOResponse.Add('fields', lJAFields);
                     lJOResponse.Add('records', _GetTableRecords(SearchableTables."Table ID"));
                     lJAResponse.Add(lJOResponse);
@@ -97,7 +95,7 @@ codeunit 50200 "Packer Mgmt."
         exit(lJAResponse);
     end;
 
-    local procedure GetFieldsData(pTableId: Integer; pJAKeyFields: JsonArray; pJAFields: JsonArray)
+    local procedure GetFieldsData(pTableId: Integer; pJAFields: JsonArray)
     var
         lFields: Record "Field";
         lJOPart: JsonObject;
@@ -113,10 +111,10 @@ codeunit 50200 "Packer Mgmt."
                         lJOPart.Add('fieldCaption', lFields."Field Caption");
                         if SearchableTableField."AI Guide" <> '' then
                             lJOPart.Add('fieldAIGuide', SearchableTableField."AI Guide");
-                        if lFields.IsPartOfPrimaryKey then
-                            pJAKeyFields.Add(lJOPart)
-                        else
-                            pJAFields.Add(lJOPart);
+                        //if lFields.IsPartOfPrimaryKey then
+                        //    pJAKeyFields.Add(lJOPart)
+                        //else
+                        pJAFields.Add(lJOPart);
                     end;
             until lFields.NEXT() = 0;
     end;
