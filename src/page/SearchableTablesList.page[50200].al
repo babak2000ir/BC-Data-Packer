@@ -9,6 +9,10 @@ page 50200 "Searchable Tables List"
     {
         area(Content)
         {
+            part("Searchable AI Guide"; "Searchable AI Guide")
+            {
+                ApplicationArea = all;
+            }
             repeater(SelectATable)
             {
                 Caption = 'Select a Table';
