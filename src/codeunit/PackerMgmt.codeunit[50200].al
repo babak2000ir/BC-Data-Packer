@@ -37,7 +37,22 @@ codeunit 50200 "Packer Mgmt."
         TableRec: Record AllObjWithCaption;
         lJAKeyFields: JsonArray;
         lJAFields: JsonArray;
+        SearchableAIGuide: Record "Searchable AI Guide";
+        lJAAIGuide: JsonArray;
     begin
+        SearchableAIGuide.Reset();
+        if SearchableAIGuide.FindSet() then
+            repeat
+                case SearchableAIGuide."AI Guide Type" of
+                    SearchableAIGuide."AI Guide Type"::System:
+                        lJAAIGuide.Add(SearchableAIGuide.Content);
+                //SearchableAIGuide."AI Guide Type"::Sample:
+                //    lJAAIGuide.Add(SearchableAIGuide."AI Guide");
+                end;
+            until SearchableAIGuide.NEXT() = 0;
+
+        lJAResponse.Add(lJAAIGuide);
+
         SearchableTables.SetAutoCalcFields("Table Name");
         SearchableTables.RESET();
         SearchableTables.SETRANGE(active, true);
