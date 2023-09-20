@@ -36,6 +36,7 @@ codeunit 50200 "Packer Mgmt."
         TableRec: Record AllObjWithCaption;
         lJAFields: JsonArray;
         SearchableAIGuide: Record "Searchable AI Guide";
+        lJOAIGuide: JsonObject;
         lJAAIGuide: JsonArray;
     begin
         SearchableAIGuide.Reset();
@@ -49,7 +50,8 @@ codeunit 50200 "Packer Mgmt."
                 end;
             until SearchableAIGuide.NEXT() = 0;
 
-        lJAResponse.Add(lJAAIGuide);
+        lJOAIGuide.Add('systemGuide', lJAAIGuide);
+        lJAResponse.Add(lJOAIGuide);
 
         SearchableTables.SetAutoCalcFields("Table Name");
         SearchableTables.RESET();
@@ -62,8 +64,8 @@ codeunit 50200 "Packer Mgmt."
                         lJOResponse.Add('tableAIGuide', SearchableTables."AI Guide");
                     //lJOResponse.Add('fieldInfo', _GetTableInfo(SearchableTables."Table ID"));
                     GetFieldsData(SearchableTables."Table ID", lJAFields);
-                    lJOResponse.Add('fields', lJAFields);
-                    lJOResponse.Add('records', _GetTableRecords(SearchableTables."Table ID"));
+                    lJOResponse.Add('tableFields', lJAFields);
+                    lJOResponse.Add('tableRecords', _GetTableRecords(SearchableTables."Table ID"));
                     lJAResponse.Add(lJOResponse);
                     Clear(lJOResponse);
                     Clear(lJAFields);
@@ -76,6 +78,7 @@ codeunit 50200 "Packer Mgmt."
     local procedure GetEntityJson(var pRecRef: RecordRef): JsonArray
     var
         lFields: Record "Field";
+        lJOResponse: JsonObject;
         lJAResponse: JsonArray;
         lFieldRef: FieldRef;
         SearchableTableField: Record "Searchable Table Field";
@@ -84,6 +87,7 @@ codeunit 50200 "Packer Mgmt."
         lFields.SETRANGE(TableNo, pRecRef.Number);
         if lFields.FINDSET() then
             repeat
+                Clear(lJOResponse);
                 if SearchableTableField.Get(pRecRef.Number, lFields."No.") and SearchableTableField.Active then
                     if lFields.Enabled and (lFields.ObsoleteState = lFields.ObsoleteState::No) then begin
                         lFieldRef := pRecRef.Field(lFields."No.");
@@ -92,9 +96,10 @@ codeunit 50200 "Packer Mgmt."
                             lFieldRef.CalcField();
 
                         if lFieldRef.Type = lFieldRef.Type::Option then
-                            lJAResponse.Add(lFieldRef.GetEnumValueCaption(lFieldRef.Value()))
+                            lJOResponse.Add(lFieldRef.Caption, lFieldRef.GetEnumValueCaption(lFieldRef.Value()))
                         else
-                            lJAResponse.Add(format(lFieldRef.Value(), 0, 9));
+                            lJOResponse.Add(lFieldRef.Caption, format(lFieldRef.Value(), 0, 9));
+                        lJAResponse.Add(lJOResponse);
                     end;
             until lFields.NEXT() = 0;
         exit(lJAResponse);
